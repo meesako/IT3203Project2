@@ -1,1 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Self-Assessment Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f5f5; margin:0; padding:0; }
+    header { background:#1f3b4d; color:white; padding:1rem; }
+    header nav a { color:white; margin-right:1rem; text-decoration:none; }
+    nav .active { font-weight:bold; }
+    main { max-width:900px; margin:2rem auto; background:white; padding:1.5rem; border-radius:8px; }
+    .question-box { margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px solid #ddd; }
+    .question-title { font-weight:bold; }
+    .buttons button { margin-right:1rem; }
+    #results { margin-top:2rem; display:none; background:white; padding:1rem; border-radius:8px; }
+    .correct { color:green; font-weight:bold; }
+    .incorrect { color:red; font-weight:bold; }
+  </style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="resources.html">Resources</a>
+    <a href="quiz.html" class="active">Quiz</a>
+  </nav>
+</header>
+
+<main>
+  <h1>Self-Assessment Quiz</h1>
+
+  <form id="quizForm">
+    <div class="question-box">
+      <div class="question-title">1. Fill in the blank</div>
+      HTML stands for _________ Markup Language.<br><br>
+      <input type="text" id="q1">
+    </div>
+
+    <div class="question-box">
+      <div class="question-title">2. Which tag creates a link?</div>
+      <label><input type="radio" name="q2" value="a"> &lt;link&gt;</label><br>
+      <label><input type="radio" name="q2" value="b"> &lt;a&gt;</label><br>
+      <label><input type="radio" name="q2" value="c"> &lt;href&gt;</label><br>
+      <label><input type="radio" name="q2" value="d"> &lt;button&gt;</label>
+    </div>
+
+    <div class="question-box">
+      <div class="question-title">3. Which CSS property sets text color?</div>
+      <label><input type="radio" name="q3" value="a"> font-style</label><br>
+      <label><input type="radio" name="q3" value="b"> background-color</label><br>
+      <label><input type="radio" name="q3" value="c"> color</label><br>
+      <label><input type="radio" name="q3" value="d"> text-decoration</label>
+    </div>
+
+    <div class="question-box">
+      <div class="question-title">4. What is CSS used for?</div>
+      <label><input type="radio" name="q4" value="a"> Styling web pages</label><br>
+      <label><input type="radio" name="q4" value="b"> Databases</label><br>
+      <label><input type="radio" name="q4" value="c"> Servers</label><br>
+      <label><input type="radio" name="q4" value="d"> File compression</label>
+    </div>
+
+    <div class="question-box">
+      <div class="question-title">5. Select all valid ways to add CSS</div>
+      <label><input type="checkbox" name="q5" value="a"> external stylesheet</label><br>
+      <label><input type="checkbox" name="q5" value="b"> SQL in HTML</label><br>
+      <label><input type="checkbox" name="q5" value="c"> &lt;style&gt; block</label><br>
+      <label><input type="checkbox" name="q5" value="d"> .exe file</label>
+    </div>
+
+    <div class="buttons">
+      <button type="submit">Submit Quiz</button>
+      <button type="button" id="resetBtn">Reset</button>
+    </div>
+  </form>
+
+  <div id="results">
+    <p id="overallResult"></p>
+    <p id="totalScore"></p>
+    <div id="questionFeedback"></div>
+  </div>
+</main>
+
+<script>
+  const quizForm = document.getElementById('quizForm');
+  const resetBtn = document.getElementById('resetBtn');
+  const results = document.getElementById('results');
+  const overallResult = document.getElementById('overallResult');
+  const totalScore = document.getElementById('totalScore');
+  const feedback = document.getElementById('questionFeedback');
+
+  const answerKey = {
+    q1: "hypertext",
+    q2: "b",
+    q3: "c",
+    q4: "a",
+    q5: ["a", "c"]
+  };
+
+  quizForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+    let score = 0;
+    feedback.innerHTML = "";
+
+    // Q1
+    let q1 = document.getElementById('q1').value.trim().toLowerCase();
+    let q1Correct = q1 === "hypertext" || q1 === "hypertext markup language";
+    if (q1Correct) score++;
+    addFeedback(1, q1Correct, "HyperText Markup Language");
+
+    // Q2
+    const q2 = document.querySelector('input[name="q2"]:checked');
+    let q2Correct = q2 && q2.value === answerKey.q2;
+    if (q2Correct) score++;
+    addFeedback(2, q2Correct, "&lt;a&gt;");
+
+    // Q3
+    const q3 = document.querySelector('input[name="q3"]:checked');
+    let q3Correct = q3 && q3.value === answerKey.q3;
+    if (q3Correct) score++;
+    addFeedback(3, q3Correct, "color");
+
+    // Q4
+    const q4 = document.querySelector('input[name="q4"]:checked');
+    let q4Correct = q4 && q4.value === answerKey.q4;
+    if (q4Correct) score++;
+    addFeedback(4, q4Correct, "Styling web pages");
+
+    // Q5
+    const q5 = [...document.querySelectorAll('input[name="q5"]:checked')].map(i => i.value);
+    const correctSet = JSON.stringify(answerKey.q5.sort());
+    const userSet = JSON.stringify(q5.sort());
+    let q5Correct = correctSet === userSet;
+    if (q5Correct) score++;
+    addFeedback(5, q5Correct, "external stylesheet + style block");
+
+    results.style.display = "block";
+    overallResult.textContent = score >= 4 ? "PASS" : "FAIL";
+    overallResult.className = score >= 4 ? "correct" : "incorrect";
+    totalScore.textContent = `${score} / 5`;
+  });
+
+  resetBtn.addEventListener('click', () => {
+    quizForm.reset();
+    results.style.display = "none";
+    feedback.innerHTML = "";
+  });
+
+  function addFeedback(num, correct, answer) {
+    feedback.innerHTML += `
+      <p class="${correct ? 'correct' : 'incorrect'}">
+        Question ${num}: ${correct ? 'Correct' : 'Incorrect'}
+        <br><small>Correct Answer: ${answer}</small>
+      </p>
+    `;
+  }
+</script>
+
+</body>
+</html>
 
